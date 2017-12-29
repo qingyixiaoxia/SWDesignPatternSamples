@@ -1,1 +1,2 @@
 # SWDesignPatternSamples
+本项目提供了23种经典设计模式的Sample代码
