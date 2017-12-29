@@ -20,7 +20,52 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef DESIGN_PATTERN_STATE_H
-#define DESIGN_PATTERN_STATE_H
+#ifndef DESIGN_PATTERN_INTERPRETER_H
+#define DESIGN_PATTERN_INTERPRETER_H
 
+class Expression
+{
+public:
+	virtual int calculate() = 0;
+};
+
+class Number : public Expression
+{
+public:
+	Number(int num);
+	
+public:
+	int calculate();
+
+private:
+	int m_number;
+};
+
+class Bow : public Expression
+{
+public:
+	Bow(char left, Expression* mid, char right);   /* It is very BAD to use Expression* !!! */
+	
+public:
+	int calculate();
+
+private:
+	char m_bowLeft;
+	char m_bowRight;
+	Expression* m_mid;
+};
+
+class Equation : public Expression
+{
+public:
+	Equation(Expression* left, char opt, Expression* right);  /* It is very BAD to use Expression* !!! */
+
+public:
+	int calculate();
+
+private:
+	char m_opt;
+	Expression* m_left;
+	Expression* m_right;
+};
 #endif

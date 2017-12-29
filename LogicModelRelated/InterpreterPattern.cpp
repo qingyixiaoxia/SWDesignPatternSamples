@@ -20,7 +20,53 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef DESIGN_PATTERN_STATE_H
-#define DESIGN_PATTERN_STATE_H
+#include "InterpreterPattern.h"
 
-#endif
+Number::Number(int num)
+{
+	m_number = num;
+}
+
+int Number::calculate()
+{
+    return m_number;
+}
+
+Bow::Bow(char left, Expression* mid, char right)
+{
+	m_bowLeft = left;
+	m_bowRight = right;
+	m_mid = mid;
+}
+
+int Bow::calculate()
+{
+    return m_mid->calculate();
+}
+
+Equation::Equation(Expression* left, char opt, Expression* right)
+{
+	m_opt = opt;
+	m_left = left;
+	m_right = right;
+}
+
+int Equation::calculate()
+{
+    int leftVal = m_left->calculate();
+	int rightVal = m_right->calculate();
+
+	switch (m_opt)
+	{
+    case '+':
+        return leftVal + rightVal;
+    case '-':
+        return leftVal - rightVal;
+    case '*':
+        return leftVal * rightVal;
+    case '/':
+        return leftVal / rightVal;
+	default:
+		break;
+	}
+}
