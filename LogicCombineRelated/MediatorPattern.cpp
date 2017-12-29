@@ -20,50 +20,63 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef DESIGN_PATTERN_MEDIATOR_H
-#define DESIGN_PATTERN_MEDIATOR_H
+#include "MediatorPattern.h"
 
-class DBHandler
+bool DBHandler::writeTempToDB(float value)
 {
-public:
-	bool writeTempToDB(float value);
-	float readTempFromDB();
-};
+	/* Write temperature to DB */
+	return true;
+}
 
-class TemperatureDev
+float DBHandler::readTempFromDB()
 {
-public:
-	virtual ~TemperatureDev(){}
-	virtual float getTemperature() = 0;
-};
+	/* Get the newest temperature from DB */
+	return 0;
+}
 
-class gagaTemperature : public TemperatureDev
+gagaTemperature::~gagaTemperature()
 {
-public:
-	~gagaTemperature();
-	float getTemperature();
-};
+}
 
-class gegeTemperature : public TemperatureDev
+float gagaTemperature::getTemperature()
 {
-public:
-	~gegeTemperature();
-	float getTemperature();
-};
+	return 38.11;
+}
 
-/**************** 
-    The mediator can avoid that DBHandler module call Temperature directlly.
-	So that DBHandler and Temperature are decoupled from each other.
-*******************/
-class Mediator
+gegeTemperature::~gegeTemperature()
 {
-public:
-	Mediator(DBHandler* pDBHandler, TemperatureDev* pTempDevice);
-	~Mediator();
-	float getAData();
+}
 
-private:
-	TemperatureDev* m_pTempDevice;
-	DBHandler* m_pDBHandler;
-};
-#endif
+float gegeTemperature::getTemperature()
+{
+	return 39.22;
+}
+
+Mediator::Mediator(DBHandler* pDBHandler, TemperatureDev* pTempDevice)
+{
+	m_pDBHandler = pDBHandler;
+	m_pTempDevice = pTempDevice;
+}
+
+Mediator::~Mediator()
+{
+	if (m_pDBHandler != 0)
+	{
+		delete m_pDBHandler;
+	}
+	if (m_pTempDevice != 0)
+	{
+		delete m_pTempDevice;
+	}
+}
+
+float Mediator::getAData()
+{
+	float curTemp = m_pTempDevice->getTemperature();
+	if (!m_pDBHandler->writeTempToDB(curTemp))
+	{
+		// DO SOMEHING 
+	}
+
+	return curTemp;
+}

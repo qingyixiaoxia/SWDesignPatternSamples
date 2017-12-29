@@ -20,50 +20,80 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef DESIGN_PATTERN_MEDIATOR_H
-#define DESIGN_PATTERN_MEDIATOR_H
+#include "BridgePattern.h"
 
-class DBHandler
+hahaTemperature::~hahaTemperature()
 {
-public:
-	bool writeTempToDB(float value);
-	float readTempFromDB();
-};
+}
 
-class TemperatureDev
+float hahaTemperature::getTemperature()
 {
-public:
-	virtual ~TemperatureDev(){}
-	virtual float getTemperature() = 0;
-};
+	return 38.11;
+}
 
-class gagaTemperature : public TemperatureDev
+heheTemperature::~heheTemperature()
 {
-public:
-	~gagaTemperature();
-	float getTemperature();
-};
-
-class gegeTemperature : public TemperatureDev
+}
+float heheTemperature::getTemperature()
 {
-public:
-	~gegeTemperature();
-	float getTemperature();
-};
+	return 35.22;
+}
 
-/**************** 
-    The mediator can avoid that DBHandler module call Temperature directlly.
-	So that DBHandler and Temperature are decoupled from each other.
-*******************/
-class Mediator
+bool TemperatureAlarm::isAlarming(TemperatureDevice *pDevice)
 {
-public:
-	Mediator(DBHandler* pDBHandler, TemperatureDev* pTempDevice);
-	~Mediator();
-	float getAData();
+	float temp = pDevice->getTemperature();
+	if (isTooHigh(temp) || isTooLow(temp))
+	{
+		return true;
+	}
 
-private:
-	TemperatureDev* m_pTempDevice;
-	DBHandler* m_pDBHandler;
-};
-#endif
+	return false;
+}
+
+TempAlarmStrategy001::~TempAlarmStrategy001()
+{
+}
+
+bool TempAlarmStrategy001::isTooHigh(float temp)
+{
+	if (temp > 40)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool TempAlarmStrategy001::isTooLow(float temp)
+{
+	if (temp < 30)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+TempAlarmStrategy002::~TempAlarmStrategy002()
+{
+}
+
+bool TempAlarmStrategy002::isTooHigh(float temp)
+{
+	if (temp > 38)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool TempAlarmStrategy002::isTooLow(float temp)
+{
+	if (temp < 36)
+	{
+		return true;
+	}
+
+	return false;
+}

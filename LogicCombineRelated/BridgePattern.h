@@ -20,50 +20,56 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef DESIGN_PATTERN_MEDIATOR_H
-#define DESIGN_PATTERN_MEDIATOR_H
+#ifndef DESIGN_PATTERN_BRIDGE_H
+#define DESIGN_PATTERN_BRIDGE_H
 
-class DBHandler
+class TemperatureDevice
 {
 public:
-	bool writeTempToDB(float value);
-	float readTempFromDB();
-};
-
-class TemperatureDev
-{
-public:
-	virtual ~TemperatureDev(){}
+	virtual ~TemperatureDevice(){}
 	virtual float getTemperature() = 0;
 };
 
-class gagaTemperature : public TemperatureDev
+class hahaTemperature : public TemperatureDevice
 {
 public:
-	~gagaTemperature();
+	~hahaTemperature();
 	float getTemperature();
 };
 
-class gegeTemperature : public TemperatureDev
+class heheTemperature : public TemperatureDevice
 {
 public:
-	~gegeTemperature();
+	~heheTemperature();
 	float getTemperature();
 };
 
-/**************** 
-    The mediator can avoid that DBHandler module call Temperature directlly.
-	So that DBHandler and Temperature are decoupled from each other.
-*******************/
-class Mediator
+/************** TemperatureAlarm class act as a bridge ****************/
+class TemperatureAlarm   
 {
 public:
-	Mediator(DBHandler* pDBHandler, TemperatureDev* pTempDevice);
-	~Mediator();
-	float getAData();
+	virtual ~TemperatureAlarm() {}
+	bool isAlarming(TemperatureDevice *pDevice);
 
-private:
-	TemperatureDev* m_pTempDevice;
-	DBHandler* m_pDBHandler;
+public:
+	virtual bool isTooHigh(float temp) = 0;
+	virtual bool isTooLow(float temp) = 0;
 };
+
+class TempAlarmStrategy001 : public TemperatureAlarm
+{
+public:
+	~TempAlarmStrategy001();
+	bool isTooHigh(float temp);
+	bool isTooLow(float temp);
+};
+
+class TempAlarmStrategy002 : public TemperatureAlarm
+{
+public:
+	~TempAlarmStrategy002();
+	bool isTooHigh(float temp);
+	bool isTooLow(float temp);
+};
+
 #endif
