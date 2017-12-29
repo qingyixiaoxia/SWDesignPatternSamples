@@ -20,50 +20,80 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef DESIGN_PATTERN_PROXY_H
-#define DESIGN_PATTERN_PROXY_H
-#include <string>
-#include <vector>
+#ifndef DESIGN_PATTERN_ADAPTER_H
+#define DESIGN_PATTERN_ADAPTER_H
+#ifdef WIN32
+#include <windows.h>
+#endif
 
-class IListener
+typedef void (*Func_Loop)(void *pUser);
+
+class IThreadWrapper
 {
 public:
-	virtual void onReceiveData(const char* pDataBuf, unsigned int dataLen) = 0;
+	virtual ~IThreadWrapper() {}
+	virtual bool create(Func_Loop pLoopFunc) = 0;
+	virtual bool start() = 0;
+	virtual bool join() = 0;
 };
 
-class IServer
+#ifdef WIN32
+class WinThreadImpl : public IThreadWrapper
 {
-public:
-	virtual ~IServer() {}
-	virtual bool connect(std::string serverIP) = 0;
-	virtual bool sendData(const char* pDataBuf, unsigned int dataLen) = 0;
-	virtual bool registerDataListener(IListener *pDataListener) = 0;
-};
+private:
+	typedef HANDLE Thread_Handle;
+	typedef DWORD  Thread_ID;
 
-class RemoteServerProxy : public IServer 
-{
 public:
-	RemoteServerProxy() {}
-	~RemoteServerProxy();
-	bool connect(std::string serverIP);
-	bool sendData(const char* pDataBuf, unsigned int dataLen);
-	bool registerDataListener(IListener *pDataListener);
+	~WinThreadImpl();
+	bool create(Func_Loop pLoopFunc);
+	bool start();
+	bool join();
 
 private:
-	std::vector<const IListener*> m_listenerVec;
-};
+	static DWORD WINAPI win_loop(LPVOID pUser);
 
-class Client_proxy : public IListener
+private:
+	Thread_Handle m_threadHandle;
+	Thread_ID  m_threadId;
+	Func_Loop m_loopFunc;
+};
+#endif
+
+#ifdef LINUX
+class LinuxThreadImpl : public IThreadWrapper
+{
+private:
+	typedef pthread_t Thread_Handle;
+	
+public:
+	~LinuxThreadImpl();
+	bool create(Func_Loop pLoopFunc);
+	bool start();
+	bool join();
+
+private:
+	static void* linux_loop(void* pUser);
+
+private:
+	Thread_Handle m_threadHandle;
+	Func_Loop m_loopFunc;
+};
+#endif
+
+class client_threadwrapper
 {
 public:
-	Client_proxy();
-	~Client_proxy();
+	client_threadwrapper();
+	~client_threadwrapper();
+
 	void runTest();
 
 private:
-	void onReceiveData(const char* pDataBuf, unsigned int dataLen);
+	static void onLoop(void *pUser);
 
 private:
-	IServer* m_server;
+	IThreadWrapper* m_pThreadHandler;
 };
+
 #endif

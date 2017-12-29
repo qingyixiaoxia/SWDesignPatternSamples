@@ -20,50 +20,46 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef DESIGN_PATTERN_PROXY_H
-#define DESIGN_PATTERN_PROXY_H
-#include <string>
-#include <vector>
+#include "FacadePattern.h"
 
-class IListener
+#ifdef WIN32
+WinThreadFacade::~WinThreadFacade()
 {
-public:
-	virtual void onReceiveData(const char* pDataBuf, unsigned int dataLen) = 0;
-};
+	DWORD dwExitCode;
+	BOOL result = TerminateThread(m_threadHandle, dwExitCode);
+}
 
-class IServer
+bool WinThreadFacade::create(Func_Loop pLoopFunc)
 {
-public:
-	virtual ~IServer() {}
-	virtual bool connect(std::string serverIP) = 0;
-	virtual bool sendData(const char* pDataBuf, unsigned int dataLen) = 0;
-	virtual bool registerDataListener(IListener *pDataListener) = 0;
-};
+	m_threadHandle = CreateThread(0, 0, win_loop, this, 0, &m_threadId);
 
-class RemoteServerProxy : public IServer 
+	return true;
+}
+
+bool WinThreadFacade::start()
 {
-public:
-	RemoteServerProxy() {}
-	~RemoteServerProxy();
-	bool connect(std::string serverIP);
-	bool sendData(const char* pDataBuf, unsigned int dataLen);
-	bool registerDataListener(IListener *pDataListener);
+	return true;
+}
 
-private:
-	std::vector<const IListener*> m_listenerVec;
-};
-
-class Client_proxy : public IListener
+bool WinThreadFacade::join()
 {
-public:
-	Client_proxy();
-	~Client_proxy();
-	void runTest();
+	WaitForSingleObject(m_threadHandle, 0);
+	return true;
+}
 
-private:
-	void onReceiveData(const char* pDataBuf, unsigned int dataLen);
+DWORD WINAPI WinThreadFacade::win_loop(LPVOID pUser)
+{
+	WinThreadFacade* pThis = (WinThreadFacade*)pUser;
+	if (pThis == NULL)
+	{
+		return 0;
+	}
 
-private:
-	IServer* m_server;
-};
+	if (pThis->m_loopFunc != NULL)
+	{
+		pThis->m_loopFunc((void*)pThis);
+	}
+
+	return 0;
+}
 #endif
